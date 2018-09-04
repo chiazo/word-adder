@@ -4,13 +4,16 @@ import java.util.HashMap;
 
 public class addWords {
 
+    private String english;
+    private String igbo;
+    private String englSentence;
+    private String igboSentence;
+
     public addWords(){
-        URLResource url = new URLResource("http://www.igbofocus.co.uk/Igbo-Language/Learn-Some-Every-Day-Igbo-Word/learn-some-every-day-igbo-words.html");
-        HashMap<HashMap<String, String>, HashMap<String, String>> wordMap = new HashMap<>();
-        String bold = "";
-        String definition = "";
-        String line = "";
-        int index = 0;
+        String english = "";
+        String igbo = "";
+        String englSentence = "";
+        String igboSentence = "";
     }
 
 
