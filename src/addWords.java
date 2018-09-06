@@ -5,46 +5,52 @@ import java.awt.*;
 import java.util.HashMap;
 
 
-// this class will load igbo word, english word, igbo sentence, and english sentence into addWord object
+// this class will load igbo word, english word, igbo sentence, and english sentence into HashMaps
 
 public class addWords {
 
-    private String test;
     private HashMap<String, String> wordPairs;
     private HashMap<String, HashMap<String, String>> sentencePairs;
-    private String bold;
-    private String definition;
-    private String igboSent;
-    private String englSent;
-    private String[] answer;
-    private int index;
-    private FileResource fr;
+    private String igboWord;
+    private String englishWord;
+    private String igboSentence;
+    private String englishSentence;
 
-    public addWords(String englishWord, String igboWord, String igboSentence, String englishSentence){
-        bold = igboWord;
-        definition = englishWord;
-        igboSent = igboSentence;
-        englSent = englishSentence;
+
+    public addWords(String definition, String bold, String igboSent, String englSent){
+        igboWord = bold;
+        englishWord = definition;
+        igboSentence = igboSent;
+        englishSentence = englSent;
     }
 
-    /*private HashMap<String, String> loadWordMap() {
-        return(" ");
-    } */
-
     public String getBold() {
-        return bold;
+        return igboWord;
     }
 
     public String getDefinition() {
-        return definition;
+        return englishWord;
     }
 
     public String getIgboSent() {
-        return igboSent;
+        return igboSentence;
     }
 
     public String getEnglSent() {
-        return englSent;
+        return englishSentence;
+    }
+
+    public HashMap<String, String> fillMaps() {
+        if(!wordPairs.containsKey(englishWord)) {
+            wordPairs.put(englishWord, igboWord);
+            //sentencePairs.put(englishWord, )
+        }
+
+        return wordPairs;
+    }
+
+    public HashMap<String, HashMap<String, String>> getSentencePairs() {
+        return sentencePairs;
     }
 }
 
