@@ -1,56 +1,56 @@
-import edu.duke.FileResource;
-import edu.duke.URLResource;
 
-import java.awt.*;
+
 import java.util.HashMap;
 
 
 // this class will load igbo word, english word, igbo sentence, and english sentence into HashMaps
 
-public class addWords {
+public class addWords{
 
     private HashMap<String, String> wordPairs;
-    private HashMap<String, HashMap<String, String>> sentencePairs;
-    private String igboWord;
-    private String englishWord;
-    private String igboSentence;
-    private String englishSentence;
+    private HashMap<String, String[]> sentencePairs;
+    private VocabWord currWord;
 
 
-    public addWords(String definition, String bold, String igboSent, String englSent){
-        igboWord = bold;
-        englishWord = definition;
-        igboSentence = igboSent;
-        englishSentence = englSent;
+    public addWords(VocabWord w){
+        currWord = w;
+        fillMaps();
     }
 
-    public String getBold() {
-        return igboWord;
+    private String getIgboWord() {
+        return currWord.igboWord;
     }
 
-    public String getDefinition() {
-        return englishWord;
+    private String getEnglishDefinition() {
+        return currWord.englishWord;
     }
 
-    public String getIgboSent() {
-        return igboSentence;
+    private String getIgboSentence() {
+        return currWord.igboSentence;
     }
 
-    public String getEnglSent() {
-        return englishSentence;
+    private String getEnglishSentence() {
+        return currWord.englishSentence;
     }
 
-    public HashMap<String, String> fillMaps() {
-        if(!wordPairs.containsKey(englishWord)) {
-            wordPairs.put(englishWord, igboWord);
-            //sentencePairs.put(englishWord, )
+    private void fillMaps() {
+        if(!wordPairs.containsKey(getEnglishDefinition())) {
+            wordPairs.put(getEnglishDefinition(), getIgboWord());
         }
-
-        return wordPairs;
+        if(!sentencePairs.containsKey(getEnglishDefinition())) {
+            String[] currSentences = new String[2];
+            currSentences[0] = getEnglishSentence();
+            currSentences[1] = getIgboSentence();
+            sentencePairs.put(getEnglishDefinition(), currSentences);
+        }
     }
 
-    public HashMap<String, HashMap<String, String>> getSentencePairs() {
-        return sentencePairs;
+    public String[] getSentencePairs(String engWord) {
+        return sentencePairs.get(engWord);
+    }
+
+    public VocabWord returnWord() {
+        return currWord;
     }
 }
 
