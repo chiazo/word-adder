@@ -1,13 +1,12 @@
 
 
+import com.google.gson.Gson;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
@@ -20,10 +19,12 @@ public class addWords {
     private Map<String, String> wordPairs;
     private Map<String, HashMap<String, String>> sentencePairs;
     private VocabWord currWord;
+    private ArrayList<VocabWord> allWords;
 
     private addWords() {
         wordPairs = new TreeMap<>();
         sentencePairs = new TreeMap<>();
+        allWords = new ArrayList<>();
     }
 
     private void fillMaps(VocabWord word) {
@@ -45,6 +46,8 @@ public class addWords {
         return this.sentencePairs;
     }
 
+    private ArrayList<VocabWord> getAllWords() { return this.allWords; }
+
     private void extractSentence(Document doc) {
         Element bold = doc.select("b").first();
         Element p = doc.select("p").first();
@@ -56,6 +59,7 @@ public class addWords {
                 String[] splitSent = splitEngWord[1].split("- |\\;");
                 if (splitSent.length > 1) {
                     currWord = new VocabWord(splitEngWord[0].trim(), igboWord.trim(), splitSent[0].trim(), splitSent[1].trim());
+                    allWords.add(currWord);
                     fillMaps(currWord);
                 }
             }
@@ -74,9 +78,11 @@ public class addWords {
         BufferedReader br = new BufferedReader(fr);
         Map<String, String> wordPairs;
         Map<String, HashMap<String, String>> sentencePairs;
+        ArrayList<VocabWord> allWords;
         String html = br.readLine();
         while (html != null) {
-            try { add.extractSentence(Jsoup.parse(html));
+            try {
+                add.extractSentence(Jsoup.parse(html));
             } catch (IllegalArgumentException e) {
                 // nothing needs to happen here
             } finally {
@@ -85,15 +91,20 @@ public class addWords {
 
         }
 
+        // copies over maps created in addWords object
         wordPairs = add.getWordPairs();
         sentencePairs = add.getSentencePairs();
+        allWords = add.getAllWords();
 
-        for(String word: wordPairs.keySet()) {
-            System.out.println(word);
-            System.out.println(sentencePairs.get(word));
+        // initializes string to location of soon to be exported JSON file
+        Gson gs = new Gson();
+        String jsonFile = "exportedIgboWords.json";
+        FileWriter fw = new FileWriter(jsonFile);
+
+        for (VocabWord w : allWords) {
+           // System.out.println(gs.toJson(w));
+            gs.toJson(allWords, fw);
         }
-
-
 
     }
 }
