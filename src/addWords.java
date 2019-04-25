@@ -97,11 +97,10 @@ public class addWords {
         Gson gs = new Gson();
         String jsonFile = "exportedIgboWords.json";
         FileWriter fw = new FileWriter(jsonFile);
+        String json = gs.toJson(allWords);
+        System.out.println(json);
+        fw.write(json);
 
-        for (VocabWord w : allWords) {
-           // System.out.println(gs.toJson(w));
-            gs.toJson(w, fw);
-        }
 
     }
 }
