@@ -6,10 +6,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 
 // this class will load igbo word, english word, igbo sentence, and english sentence into HashMaps
@@ -19,12 +16,12 @@ public class addWords {
     private Map<String, String> wordPairs;
     private Map<String, HashMap<String, String>> sentencePairs;
     private VocabWord currWord;
-    private ArrayList<VocabWord> allWords;
+    private Set<VocabWord> allWords;
 
     private addWords() {
         wordPairs = new TreeMap<>();
         sentencePairs = new TreeMap<>();
-        allWords = new ArrayList<>();
+        allWords = new HashSet<>();
     }
 
     private void fillMaps(VocabWord word) {
@@ -46,7 +43,7 @@ public class addWords {
         return this.sentencePairs;
     }
 
-    private ArrayList<VocabWord> getAllWords() { return this.allWords; }
+    private Set<VocabWord> getAllWords() { return this.allWords; }
 
     private void extractSentence(Document doc) {
         Element bold = doc.select("b").first();
@@ -78,7 +75,7 @@ public class addWords {
         BufferedReader br = new BufferedReader(fr);
         Map<String, String> wordPairs;
         Map<String, HashMap<String, String>> sentencePairs;
-        ArrayList<VocabWord> allWords;
+        Set<VocabWord> allWords;
         String html = br.readLine();
         while (html != null) {
             try {
@@ -103,7 +100,7 @@ public class addWords {
 
         for (VocabWord w : allWords) {
            // System.out.println(gs.toJson(w));
-            gs.toJson(allWords, fw);
+            gs.toJson(w, fw);
         }
 
     }
