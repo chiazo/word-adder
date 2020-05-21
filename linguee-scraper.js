@@ -1,12 +1,10 @@
 const req_prom = require("request-promise");
 const $ = require("cheerio");
 const url = "https://www.linguee.es/espanol-ingles/search?source=auto&query=";
-let words = ["pauta"]
-// ["negar", "conllevar", "la pauta", "ganancia"];
+let words = ["negar", "conllevar", "la pauta", "ganancia"];
 let result = [];
 
 for (let word of words) {
-    let translation, sentence;
 
     let curr_url = wordCheck(word);
 
@@ -21,7 +19,6 @@ for (let word of words) {
 
         // english translation
         let translation = $(".tag_trans > a", html)[0].children[0].data
-        console.log(translation)
 
         // verb / adjective / noun
         // noun
@@ -32,12 +29,13 @@ for (let word of words) {
         let verb = $("span > .tag_wordtype", html).text().toLowerCase().indexOf("verbo") !== -1
         if (verb) {
             translation = "to " + translation;
-            console.log("updated: " + translation)
         }
+        
+        console.log(word + ' -> '+ translation)
 
         // example sentence
-        let example = $("span.tag_e > span.tag_s", html).text()
-        console.log(example)
+        let example = $("span.tag_e > span.tag_s", html).first().text()
+        console.log("- sentence: " + example)
 
         result.push({
             word,
