@@ -1,35 +1,39 @@
-// const fetch = require("node-fetch");
-// const req_prom = require("request-promise");
-// const $ = require("cheerio");
-// const url = "https://www.spanishdict.com/translate/";
+const req_prom = require("request-promise");
+const $ = require("cheerio");
+const url = "https://www.spanishdict.com/translate/";
 // // "https://www.linguee.es/espanol-ingles/search?source=auto&query=";
-// let test = ["negar", "conllevar", "la pauta", "ganancia"];
 
-// let results = [];
+let spread = require("./spreadsheet");
+let input_words = [];
+let results = [];
 
-// function calls
-getFromSheet();
-// updateSheet();
+let word_map = new Map();
 
-function getFromSheet() {
-    // console.log(vocab_words)
-    // scrapeSpanishDict(vocab_words);
+// spread.getFromSheet().then(result => {
+//     return result
+// }).then((original_list) => {
+//     input_words = original_list;
+// }).then(() => {
+//     scrapeSpanishDict(input_words.splice(0, 5));
+// })
 
-}
-
+scrapeSpanishDict(["el libro", "verdad"])
 
 function scrapeSpanishDict(words) {
+    
     let noArticle = false, curr_url, feminine;
+   
     for (let word of words) {
         if (!wordCheck(word)) {
-            curr_url = wordCheck(word);
-        } else {
-            noArticle = true;
             curr_url = url + word;
+            noArticle = true;
+        } else {
+            curr_url = wordCheck(word);
         }
 
+        console.log(curr_url)
         feminine = false;
-        
+ 
         req_prom(curr_url).then(function(html){
             // english translation
             let translation = $("#quickdef1-es", html).text()
@@ -52,61 +56,19 @@ function scrapeSpanishDict(words) {
                 translation,
                 example
             };
-            
-            console.log(curr_obj)
+
+            word_map.set(word, curr_obj)
             results[results.length] = curr_obj
+            console.log(curr_obj)
 
         }).catch(function(err) {
-
+            console.log("error: " + err)
         })
 
     }
-}
 
-// scrape words + add them result array
-// function scrapeLinguee(words) {
-//     for (let word of words) {
-//         let curr_url = wordCheck(word);
-    
-//         req_prom.get({
-//             uri: curr_url,
-//             encoding: "binary"
-//         }, function (error, response, html) {
-//             if ($(".corrected", html).length > 0) {
-//                 let correct_word = $(".corrected", html).text().replace(/\s/g, "")
-//                 curr_url = url + correct_word;
-//             }
-    
-//             // english translation
-//             let translation = $(".tag_trans > a", html)[0].children[0].data
-    
-//             // verb / adjective / noun
-//             // noun
-//             // let noun = $("span > .tag_wordtype", html).text().toLowerCase().indexOf("sustantivo") !== -1
-//             // // adjective
-//             // let adj = $("span > .tag_wordtype", html).text().toLowerCase().indexOf("adjetivo") !== -1
-//             // verb
-//             let verb = $("span > .tag_wordtype", html).text().toLowerCase().indexOf("verbo") !== -1
-//             if (verb) {
-//                 translation = "to " + translation;
-//             }
-            
-//             console.log(word + ' -> '+ translation)
-    
-//             // example sentence
-//             let example = $("span.tag_e > span.tag_s", html).first().text()
-//             console.log("- sentence: " + example)
-    
-//             results.push({
-//                 word,
-//                 translation,
-//                 example
-//             })
-    
-//         });
-    
-//     }
-// }
+    // console.log(word_map)
+}
 
 // check for spanish article -> fix url
 function wordCheck(word) {
@@ -120,9 +82,9 @@ function wordCheck(word) {
     } else if (long_article === "los" || long_article === "las" ||
         long_article === "una") {
         word = word.slice(3);
-    } else {
+    }  else {
         return false;
-    }
+    } 
 
     let new_url = url + word;
     return new_url;
