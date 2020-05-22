@@ -9,15 +9,20 @@ let results = [];
 
 let word_map = new Map();
 
-// spread.getFromSheet().then(result => {
-//     return result
-// }).then((original_list) => {
-//     input_words = original_list;
-// }).then(() => {
-//     scrapeSpanishDict(input_words.splice(0, 5));
-// })
+spread.getFromSheet().then(result => {
+    return result
+}).then((original_list) => {
+    input_words = original_list;
+}).then(() => {
+    scrapeSpanishDict(input_words.splice(0, 5))
+    .then(() => {
+        return uploadToSheet();
+    });
+})
 
-scrapeSpanishDict(["bonito", "verdad", "los trabajadores"])
+function uploadToSheet() {
+    spread.pushToSheet(word_map)
+}
 
 async function scrapeSpanishDict(words) {
 
@@ -60,7 +65,7 @@ async function scrapeSpanishDict(words) {
 
             word_map.set(word, curr_obj)
             results[results.length] = curr_obj
-            console.log(curr_obj)
+            // console.log(curr_obj)
 
         }).catch(function (err) {
             console.log("error: " + err)
@@ -68,7 +73,6 @@ async function scrapeSpanishDict(words) {
 
     }
 
-    // console.log(word_map)
 }
 
 // check for spanish article -> fix url
