@@ -39,12 +39,14 @@ module.exports = {
                 ["spanish", "english", "sentence"]
         })
 
-        await output.updateProperties({ title: `Word-Adder: ${
-            new Date().getMonth() + 1
-        }-${ new Date().getDate()}` }).catch((e) => {
+        await output.updateProperties({
+            title: `Word-Adder ${
+                new Date().getMonth() + 1
+                }-${new Date().getDate()}`
+        }).catch((e) => {
             console.log(e)
         }).then(() => {
-            addInfo();
+            addInfo(map);
         })
 
     },
@@ -52,8 +54,17 @@ module.exports = {
 
 module.exports.getFromSheet()
 
+function addInfo(word_map) {
+    const sheet = doc.sheetsByIndex[2];
+    for (let [word, obj] of word_map) {
+        const exampleRow = sheet.addRow({
+            spanish: obj.word, english: obj.translation,
+            sentence: obj.example
+        })
+    }
+}
 
-/* USE TO UPDATE ORIGINAL DOCUMENT 
+/* USE TO UPDATE ORIGINAL DOCUMENT
 INSTEAD OF OUTPUTING NEW SHEET */
 // doc.useServiceAccountAuth(cred, function (e) {
 
