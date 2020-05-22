@@ -1,64 +1,22 @@
-const fetch = require("node-fetch");
-const req_prom = require("request-promise");
-const $ = require("cheerio");
-const url = "https://www.spanishdict.com/translate/";
-// "https://www.linguee.es/espanol-ingles/search?source=auto&query=";
-let test = ["negar", "conllevar", "la pauta", "ganancia"];
-let vocab_words = [];
-let results = [];
+// const fetch = require("node-fetch");
+// const req_prom = require("request-promise");
+// const $ = require("cheerio");
+// const url = "https://www.spanishdict.com/translate/";
+// // "https://www.linguee.es/espanol-ingles/search?source=auto&query=";
+// let test = ["negar", "conllevar", "la pauta", "ganancia"];
+
+// let results = [];
 
 // function calls
 getFromSheet();
-updateSheet();
-console.log(results)
+// updateSheet();
 
-async function getFromSheet() {
-    let url = `https://sheets.googleapis.com/v4/spreadsheets/${process.env.SHEET_ID}/values/B3:B`;
-    const request = await fetch(url, {
-        headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${process.env.ACCESS_TOKEN}`
-        }
-    });
-    const data = await request.json();
-
-    console.log(data)
-
-    scrapeSpanishDict(vocab_words);
+function getFromSheet() {
+    // console.log(vocab_words)
+    // scrapeSpanishDict(vocab_words);
 
 }
 
-// update google sheet
-function updateSheet() {
-    let url = `https://sheets.googleapis.com/v4/spreadsheets/${process.env.SHEET_ID}:batchUpdate`;
-
-    fetch(url, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${process.env.ACCESS_TOKEN}`
-        },
-        body: JSON.stringify({
-            requests: [{
-                repeatCell: {
-                    range: {
-                        startColumnIndex: 0,
-                        endColumnIndex: 1, 
-                        startRowIndex: 0,
-                        endRowIndex: 1,
-                        sheetId: process.env.SHEET_PAGE
-                    },
-                    cell: {
-                        userEnteredValue: {
-                            "numberValue": 42
-                        },
-                    },
-                    fields: "*"
-                }
-            }]
-        })
-    })
-}
 
 function scrapeSpanishDict(words) {
     let noArticle = false, curr_url, feminine;
@@ -106,49 +64,49 @@ function scrapeSpanishDict(words) {
 }
 
 // scrape words + add them result array
-function scrapeLinguee(words) {
-    for (let word of words) {
-        let curr_url = wordCheck(word);
+// function scrapeLinguee(words) {
+//     for (let word of words) {
+//         let curr_url = wordCheck(word);
     
-        req_prom.get({
-            uri: curr_url,
-            encoding: "binary"
-        }, function (error, response, html) {
-            if ($(".corrected", html).length > 0) {
-                let correct_word = $(".corrected", html).text().replace(/\s/g, "")
-                curr_url = url + correct_word;
-            }
+//         req_prom.get({
+//             uri: curr_url,
+//             encoding: "binary"
+//         }, function (error, response, html) {
+//             if ($(".corrected", html).length > 0) {
+//                 let correct_word = $(".corrected", html).text().replace(/\s/g, "")
+//                 curr_url = url + correct_word;
+//             }
     
-            // english translation
-            let translation = $(".tag_trans > a", html)[0].children[0].data
+//             // english translation
+//             let translation = $(".tag_trans > a", html)[0].children[0].data
     
-            // verb / adjective / noun
-            // noun
-            // let noun = $("span > .tag_wordtype", html).text().toLowerCase().indexOf("sustantivo") !== -1
-            // // adjective
-            // let adj = $("span > .tag_wordtype", html).text().toLowerCase().indexOf("adjetivo") !== -1
-            // verb
-            let verb = $("span > .tag_wordtype", html).text().toLowerCase().indexOf("verbo") !== -1
-            if (verb) {
-                translation = "to " + translation;
-            }
+//             // verb / adjective / noun
+//             // noun
+//             // let noun = $("span > .tag_wordtype", html).text().toLowerCase().indexOf("sustantivo") !== -1
+//             // // adjective
+//             // let adj = $("span > .tag_wordtype", html).text().toLowerCase().indexOf("adjetivo") !== -1
+//             // verb
+//             let verb = $("span > .tag_wordtype", html).text().toLowerCase().indexOf("verbo") !== -1
+//             if (verb) {
+//                 translation = "to " + translation;
+//             }
             
-            console.log(word + ' -> '+ translation)
+//             console.log(word + ' -> '+ translation)
     
-            // example sentence
-            let example = $("span.tag_e > span.tag_s", html).first().text()
-            console.log("- sentence: " + example)
+//             // example sentence
+//             let example = $("span.tag_e > span.tag_s", html).first().text()
+//             console.log("- sentence: " + example)
     
-            results.push({
-                word,
-                translation,
-                example
-            })
+//             results.push({
+//                 word,
+//                 translation,
+//                 example
+//             })
     
-        });
+//         });
     
-    }
-}
+//     }
+// }
 
 // check for spanish article -> fix url
 function wordCheck(word) {
