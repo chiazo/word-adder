@@ -17,12 +17,12 @@ let word_map = new Map();
 //     scrapeSpanishDict(input_words.splice(0, 5));
 // })
 
-scrapeSpanishDict(["bonito", "verdad", "papel", "el origen", "un problema"])
+scrapeSpanishDict(["bonito", "verdad", "los trabajadores"])
 
 async function scrapeSpanishDict(words) {
-    
+
     let noArticle = false, curr_url, feminine, masculine;
-   
+
     for (let word of words) {
         if (!wordCheck(word)) {
             curr_url = url + word;
@@ -31,10 +31,9 @@ async function scrapeSpanishDict(words) {
             curr_url = wordCheck(word);
             noArticle = false;
         }
- 
-        await req_prom(curr_url).then(function(html){
-            console.log(curr_url)
-            feminine = false;   
+
+        await req_prom(curr_url).then(function (html) {
+            feminine = false;
             // english translation
             let translation = $("#quickdef1-es", html).text()
             let noun = $("._2MYNwPb3", html).text().toLowerCase().indexOf("noun") !== -1
@@ -63,7 +62,7 @@ async function scrapeSpanishDict(words) {
             results[results.length] = curr_obj
             console.log(curr_obj)
 
-        }).catch(function(err) {
+        }).catch(function (err) {
             console.log("error: " + err)
         })
 
@@ -78,15 +77,21 @@ function wordCheck(word) {
     let short_article = word.slice(0, 2).toLowerCase();
     let long_article = word.slice(0, 3).toLowerCase();
 
-    if (short_article === "la" || short_article === "el" ||
+    if (long_article === "los" || long_article === "las") {
+        word = word.slice(3)
+        if (word.slice(word.length - 2) === "es") {
+            word = word.slice(0, word.length - 2)
+        } else {
+            word = word.slice(0, word.length - 1)
+        }
+    } else if (long_article === "una") {
+        word = word.slice(3);
+    } else if (short_article === "la" || short_article === "el" ||
         short_article === "un") {
         word = word.slice(2);
-    } else if (long_article === "los" || long_article === "las" ||
-        long_article === "una") {
-        word = word.slice(3);
-    }  else {
+    } else {
         return false;
-    } 
+    }
 
     let new_url = url + word;
     return new_url;
