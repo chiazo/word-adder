@@ -17,11 +17,11 @@ let word_map = new Map();
 //     scrapeSpanishDict(input_words.splice(0, 5));
 // })
 
-scrapeSpanishDict(["el libro", "verdad"])
+scrapeSpanishDict(["bonito", "verdad", "papel", "el origen", "un problema"])
 
-function scrapeSpanishDict(words) {
+async function scrapeSpanishDict(words) {
     
-    let noArticle = false, curr_url, feminine;
+    let noArticle = false, curr_url, feminine, masculine;
    
     for (let word of words) {
         if (!wordCheck(word)) {
@@ -29,22 +29,24 @@ function scrapeSpanishDict(words) {
             noArticle = true;
         } else {
             curr_url = wordCheck(word);
+            noArticle = false;
         }
-
-        console.log(curr_url)
-        feminine = false;
  
-        req_prom(curr_url).then(function(html){
+        await req_prom(curr_url).then(function(html){
+            console.log(curr_url)
+            feminine = false;   
             // english translation
             let translation = $("#quickdef1-es", html).text()
             let noun = $("._2MYNwPb3", html).text().toLowerCase().indexOf("noun") !== -1
 
             if (noArticle && noun) {
-                feminine = $("._2MYNwPb3", html).text().toLowerCase().indexOf("feminine") !== -1
+
+                feminine = $("._2MYNwPb3", html).first().text().toLowerCase().indexOf("feminine") !== -1
+                masculine = $("._2MYNwPb3", html).first().text().toLowerCase().indexOf("masculine") !== -1
 
                 if (feminine) {
                     word = "la " + word;
-                } else {
+                } else if (masculine) {
                     word = "el " + word;
                 }
             }
