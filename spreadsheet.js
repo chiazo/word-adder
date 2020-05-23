@@ -67,9 +67,9 @@ module.exports = {
 async function addInfo(word_map) {
     let all_objs = Array.from(word_map.values())
     const sheet = doc.sheetsByIndex[doc.sheetsByIndex.length - 1];
-    console.time("adding all rows")
+    // console.time("adding all rows")
     sheet.addRows(all_objs).then(() => {
-        console.timeEnd("adding all rows")
+        // console.timeEnd("adding all rows")
         console.log("=== DONE! === ")
         process.exit(0)
     })
