@@ -9,19 +9,29 @@ let results = [];
 
 let word_map = new Map();
 
+// TIMER
+console.time("get words")
+//
+
 spread.getFromSheet().then(result => {
-    return result
+    console.timeEnd("get words")
+    return result.splice(0, 10)
+    
 }).then((original_list) => {
+    console.time("all scraped")
     input_words = original_list;
 }).then(() => {
-    scrapeSpanishDict(input_words.splice(0, 5))
-    .then(() => {
-        return uploadToSheet();
-    });
+    
+    scrapeSpanishDict(input_words).then((map) => {
+        console.timeEnd("all scraped")
+        console.time("done uploading")
+        uploadToSheet(map);
+    })
 })
 
-function uploadToSheet() {
-    spread.pushToSheet(word_map)
+function uploadToSheet(map) {
+    spread.pushToSheet(map)
+    console.timeEnd("done uploading")
 }
 
 async function scrapeSpanishDict(words) {
@@ -72,7 +82,7 @@ async function scrapeSpanishDict(words) {
         })
 
     }
-
+    return word_map;
 }
 
 // check for spanish article -> fix url

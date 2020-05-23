@@ -36,17 +36,17 @@ module.exports = {
 
         const output = await doc.addSheet({
             headerValues:
-                ["spanish", "english", "sentence"]
+                ["word", "translation", "example"]
         })
 
         await output.updateProperties({
             title: `Word-Adder ${
                 new Date().getMonth() + 1
                 }-${new Date().getDate()}`
-        }).catch((e) => {
-            console.log(e)
         }).then(() => {
             addInfo(map);
+        }).catch((e) => {
+            console.log(e)
         })
 
     },
@@ -55,13 +55,12 @@ module.exports = {
 module.exports.getFromSheet()
 
 function addInfo(word_map) {
+    console.time("adding info")
+    let all_objs = Array.from(word_map.values())
+
     const sheet = doc.sheetsByIndex[2];
-    for (let [word, obj] of word_map) {
-        const exampleRow = sheet.addRow({
-            spanish: obj.word, english: obj.translation,
-            sentence: obj.example
-        })
-    }
+    sheet.addRows(all_objs)
+    console.timeEnd("adding info")
 }
 
 /* USE TO UPDATE ORIGINAL DOCUMENT
