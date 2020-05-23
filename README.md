@@ -8,6 +8,9 @@ A program that originally parse igbo words + definitions from a website and now 
 * [spanishdict](https://www.spanishdict.com/) - source of spanish translations & sentences
 * [igbofocus](http://www.igbofocus.co.uk/Igbo-Language/Learn-Some-Every-Day-Igbo-Word/learn-some-every-day-igbo-words.html) - source of igbo translations & sentences
 
+## Author
+[Chiazo Agina](https://chiazo.github.io)
+
 ## License
 
 This project is available under the [MIT License](LICENSE.md) - see the linked file for more details.
