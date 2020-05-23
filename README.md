@@ -1,5 +1,5 @@
 # Word-Adder
-A program that originally parse igbo words + definitions from a website and now updates google sheet spanish vocab lists to include defintions & example sentences
+A program that originally parsed igbo words + definitions and now updates spanish vocab lists hosted on google sheets to include defintions & example sentences
 
 
 ## Built With
