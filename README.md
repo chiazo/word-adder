@@ -17,7 +17,7 @@ A JS program that originally parsed igbo words + definitions and now updates spa
 
 ## Results
 * [igbo quizlet deck](https://quizlet.com/_6j7wyw)
-* _Tools / Languages / Concepts_: Node.js, Promises/Async/Await, Javascript, CLI, Google Sheets API, JSON, 
+* *Tools / Languages / Concepts*: Node.js, Promises/Async/Await, Javascript, CLI, Google Sheets API, JSON 
 
 ## Author
 [Chiazo Agina](https://chiazo.github.io)
