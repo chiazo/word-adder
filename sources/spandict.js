@@ -1,0 +1,1 @@
+const url = "https://www.spanishdict.com/translate/";

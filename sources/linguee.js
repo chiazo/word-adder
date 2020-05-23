@@ -1,0 +1,1 @@
+const url = "https://www.linguee.es/espanol-ingles/search?source=auto&query="
