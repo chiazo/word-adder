@@ -7,6 +7,7 @@ A JS program that originally parsed igbo words + definitions and now updates spa
 * [cheerio](http://cheerio.js.org/) - js web scrapper
 * [spanishdict](https://www.spanishdict.com/) - source of spanish translations & sentences
 * [igbofocus](http://www.igbofocus.co.uk/Igbo-Language/Learn-Some-Every-Day-Igbo-Word/learn-some-every-day-igbo-words.html) - source of igbo translations & sentences
+* [cli-progess](https://www.npmjs.com/package/cli-progress) - terminal progress bar
 
 ## Results
 * [igbo quizlet deck](https://quizlet.com/_6j7wyw)
