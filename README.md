@@ -1,5 +1,5 @@
 # Word-Adder
-A program that originally parsed igbo words + definitions and now updates spanish vocab lists hosted on google sheets to include defintions & example sentences
+A JS program that originally parsed igbo words + definitions and now updates spanish vocab lists hosted on google sheets to include defintions & example sentences
 
 
 ## Built With
@@ -13,6 +13,9 @@ A program that originally parsed igbo words + definitions and now updates spanis
 
 ## Author
 [Chiazo Agina](https://chiazo.github.io)
+
+## Acknowledgments + Credits
+* [A great progress bar tutorial](https://medium.com/@bargord11/write-your-first-node-js-terminal-progress-bar-5bd5edb8a563)  - used this to display progress in terminal
 
 ## License
 

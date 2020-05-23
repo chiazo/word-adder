@@ -1,8 +1,9 @@
 const { GoogleSpreadsheet } = require("google-spreadsheet");
 const cred = require("./client_secret.json");
 const doc = new GoogleSpreadsheet(cred.spread_id)
-// let num_of_rows = 1;
-// let vocab_words = [];
+const ProgressBar = require("./progress-bar")
+
+const pbar = new ProgressBar();
 
 module.exports = {
     vocab_words: [],
@@ -17,8 +18,12 @@ module.exports = {
         const rows = await origin_sheet.getRows();
 
         let idx = 0;
+
+        Bar.init(num_of_rows)
+
         while (idx < num_of_rows) {
             this.vocab_words.push(rows[idx]._rawData[0])
+            Bar.update(idx)
             idx++
         }
         // console.log(this.vocab_words)
