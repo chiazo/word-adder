@@ -2,6 +2,14 @@ const req_prom = require("request-promise");
 const $ = require("cheerio");
 const url = "https://www.spanishdict.com/translate/";
 // // "https://www.linguee.es/espanol-ingles/search?source=auto&query=";
+const cliProgress = require("cli-progress")
+const bar2 = new cliProgress.SingleBar({}, cliProgress.Presets.shades_classic)
+const readline = require("readline").createInterface({
+    input: process.stdin,
+    output: process.stdout
+})
+
+
 
 let spread = require("./spreadsheet");
 let input_words = [];
@@ -9,33 +17,76 @@ let results = [];
 
 let word_map = new Map();
 
-// TIMER
-console.time("get words")
-//
+console.log("== Gathering User Preferences ==")
+async function userInput() {
+    return new Promise(function (resolve, reject) {
+        var ask = function () {
+            let userpref = {};
+            readline.question("1. Enter source sheet index (starting from 0): ", function (idx) {
+                index = parseInt(idx);
+                if (index > 0) {
+                    // internal ask() function still has access to resolve() from parent scope
+                    userpref.idx = idx;
+                    readline.question("2. Enter range (ex: A2:A) - ", function (range) {
+                        userpref.range = String(range);
+                        readline.question("3. Enter source (spandict, linguee, wordref, collinsdict) - ", function (source) {
+                            userpref.source = source;
+                            console.log("")
+                            console.log('\x1b[36m%s\x1b[0m', "current settings: ")
+                            console.log(userpref)
 
-spread.getFromSheet().then(result => {
-    console.timeEnd("get words")
-    return result.slice(0, result.length - 1)
-    
-}).then((original_list) => {
-    console.time("all scraped")
-    input_words = original_list;
-}).then(() => {
-    
-    scrapeSpanishDict(input_words).then((map) => {
-        console.timeEnd("all scraped")
-        console.time("done uploading")
-        uploadToSheet(map);
-    })
+                            readline.question("Is everything correct? (Y/N) ", (yes) => {
+                                if (yes.toLowerCase() === "y") {
+                                    resolve(userpref, reject)
+                                } else {
+                                    console.clear();
+                                    ask();
+                                }
+                            })
+                        })
+                    })
+                } else {
+                    ask();
+                }
+            });
+        };
+        ask();
+    });
+}
+
+userInput().then(obj => {
+    beginScraping(obj)
 })
 
+async function beginScraping(obj) {
+    console.log("")
+    console.log("== Pulling Vocab Words ==")
+    spread.getFromSheet(obj).then(result => {
+        return result.slice(0, result.length - 1)
+    }).then((original_list) => {
+
+        input_words = original_list;
+    }).then(() => {
+        console.log("")
+        console.log("== Scraping Definitions & Example Sentences ==")
+        scrapeSpanishDict(input_words).then((map) => {
+            console.log("")
+            console.log("== Pushing Results to Google Sheets ==")
+            return new Promise(() => {
+                uploadToSheet(map)
+            })
+
+        })
+    })
+}
+
 function uploadToSheet(map) {
-    spread.pushToSheet(map)
-    console.timeEnd("done uploading")
+    return spread.pushToSheet(map)
 }
 
 async function scrapeSpanishDict(words) {
-
+    let count = 1;
+    bar2.start(words.length, count)
     let noArticle = false, curr_url, feminine, masculine;
 
     for (let word of words) {
@@ -75,6 +126,9 @@ async function scrapeSpanishDict(words) {
 
             word_map.set(word, curr_obj)
             results[results.length] = curr_obj
+            count++;
+            bar2.update(count)
+
             // console.log(curr_obj)
 
         }).catch(function (err) {
@@ -82,6 +136,7 @@ async function scrapeSpanishDict(words) {
         })
 
     }
+    bar2.stop();
     return word_map;
 }
 
