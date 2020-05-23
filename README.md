@@ -8,6 +8,9 @@ A program that originally parsed igbo words + definitions and now updates spanis
 * [spanishdict](https://www.spanishdict.com/) - source of spanish translations & sentences
 * [igbofocus](http://www.igbofocus.co.uk/Igbo-Language/Learn-Some-Every-Day-Igbo-Word/learn-some-every-day-igbo-words.html) - source of igbo translations & sentences
 
+## Results
+* [igbo quizlet deck](https://quizlet.com/_6j7wyw)
+
 ## Author
 [Chiazo Agina](https://chiazo.github.io)
 
