@@ -1,9 +1,10 @@
 const { GoogleSpreadsheet } = require("google-spreadsheet");
 const cred = require("./client_secret.json");
 const doc = new GoogleSpreadsheet(cred.spread_id)
-const ProgressBar = require("./progress-bar")
+const cliProgress = require("cli-progress")
 
-const pbar = new ProgressBar();
+const bar1 = new cliProgress.SingleBar({}, cliProgress.Presets.shades_classic)
+const bar2 = new cliProgress.SingleBar({}, cliProgress.Presets.shades_classic)
 
 module.exports = {
     vocab_words: [],
@@ -18,14 +19,14 @@ module.exports = {
         const rows = await origin_sheet.getRows();
 
         let idx = 0;
-
-        Bar.init(num_of_rows)
+        bar1.start(num_of_rows, idx)
 
         while (idx < num_of_rows) {
             this.vocab_words.push(rows[idx]._rawData[0])
-            Bar.update(idx)
             idx++
+            bar1.update(idx)
         }
+        bar1.stop();
         // console.log(this.vocab_words)
         return this.vocab_words
     },
@@ -60,11 +61,13 @@ module.exports = {
 module.exports.getFromSheet()
 
 function addInfo(word_map) {
+    bar2.start(word_map.size, 0)
     console.time("adding info")
     let all_objs = Array.from(word_map.values())
 
     const sheet = doc.sheetsByIndex[2];
     sheet.addRows(all_objs)
+    bar2.stop()
     console.timeEnd("adding info")
 }
 

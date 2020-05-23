@@ -14,8 +14,8 @@ A JS program that originally parsed igbo words + definitions and now updates spa
 ## Author
 [Chiazo Agina](https://chiazo.github.io)
 
-## Acknowledgments + Credits
-* [A great progress bar tutorial](https://medium.com/@bargord11/write-your-first-node-js-terminal-progress-bar-5bd5edb8a563)  - used this to display progress in terminal
+<!-- ## Acknowledgments + Credits
+* [A great progress bar tutorial](https://medium.com/@bargord11/write-your-first-node-js-terminal-progress-bar-5bd5edb8a563)  - used this to display progress in terminal -->
 
 ## License
 

@@ -1,0 +1,24 @@
+{
+  "name": "wordAdder",
+  "version": "1.0.0",
+  "description": "A JS program that originally parsed igbo words + definitions and now updates spanish vocab lists hosted on google sheets to include defintions & example sentences",
+  "main": "progress-bar.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chiazo/wordAdder.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/chiazo/wordAdder/issues"
+  },
+  "homepage": "https://github.com/chiazo/wordAdder#readme",
+  "dependencies": {
+    "chalk": "^4.0.0",
+    "cli-progress": "^3.8.2"
+  }
+}
