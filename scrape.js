@@ -15,7 +15,7 @@ console.time("get words")
 
 spread.getFromSheet().then(result => {
     console.timeEnd("get words")
-    return result.splice(0, 10)
+    return result
     
 }).then((original_list) => {
     console.time("all scraped")
