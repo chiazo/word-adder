@@ -1,8 +1,7 @@
 const req_prom = require("request-promise");
 const $ = require("cheerio");
 const spandict = "https://www.spanishdict.com/translate/";
-const linguee = "https://www.linguee.es/espanol-ingles/search?source=auto&query=";
-const wordref = "https://www.wordreference.com/es/en/translation.asp?spen=";
+// const linguee = "https://www.linguee.es/espanol-ingles/search?source=auto&query=";
 const collinsdict = "https://www.collinsdictionary.com/us/dictionary/spanish-english/"
 
 const cliProgress = require("cli-progress")
@@ -32,7 +31,7 @@ async function userInput() {
                     userpref.idx = idx;
                     readline.question("2. Enter range (ex: A2:A) - ", function (range) {
                         userpref.range = String(range);
-                        readline.question("3. Enter source (spandict, linguee, collinsdict) - ", function (source) {
+                        readline.question("3. Enter source (spandict, collinsdict) - ", function (source) {
                             userpref.source = source;
                             console.log("")
                             console.log('\x1b[36m%s\x1b[0m', "current settings: ")
@@ -72,7 +71,14 @@ async function beginScraping(obj) {
     }).then(() => {
         console.log("")
         console.log("== Scraping Definitions & Example Sentences ==")
-        scrapeSpanishDict(input_words).then((map) => {
+        let chosen_function = scrapeSpanishDict;
+        if (obj.source) {
+            if (obj.source[0].toLowerCase() === "c") chosen_function = scrapeCollins;
+            // if (obj.source[0].toLowerCase() === "l") chosen_function = scrapeLinguee;
+        }
+
+
+       chosen_function(input_words).then((map) => {
             console.log("")
             console.log("== Pushing Results to Google Sheets ==")
             return new Promise(() => {
@@ -86,6 +92,131 @@ async function beginScraping(obj) {
 function uploadToSheet(map) {
     return spread.pushToSheet(map)
 }
+
+// collinsdict
+async function scrapeCollins(words) {
+    let count = 1;
+    bar2.start(words.length, count)
+    let noArticle = false, curr_url, feminine, masculine;
+    for (let word of words) {
+        if (!wordCheck(word, collinsdict)) {
+            curr_url = collinsdict + word;
+            noArticle = true;
+        } else {
+            curr_url = wordCheck(word, collinsdict);
+            noArticle = false;
+        }
+
+        req_prom.get({
+            uri: curr_url,
+            encoding: "binary",
+        }, function (error, response, html) {
+
+            // english translation
+            let descr = $(".mini-h2 > .rend-sc", html).first().text().toLowerCase()
+            let translation = $(".sense > .cit.type-translation.quote", html).first().text().toLowerCase()
+            let noun = descr.indexOf("noun") !== -1
+
+            if (noArticle && noun) {
+
+                feminine = descr.indexOf("feminine") !== -1
+                masculine = descr.indexOf("masculine") !== -1
+
+                if (feminine) {
+                    word = "la " + word;
+                } else if (masculine) {
+                    word = "el " + word;
+                }
+            }
+            // example sentence
+            let example = $(".example_box:nth-child(2)", html).children().children().remove().end().text().trim().replace(/^[^a-z\d]*|[^a-z\d]*$/gi, '');
+            if (example) {
+                example = example[0].toUpperCase() + example.slice(1);
+            }
+
+            let obj = {
+                word,
+                translation,
+                example
+            }
+
+            word_map.set(word, obj)
+            count++;
+            bar2.update(count)
+
+        }).catch(function(e) {
+            console.log("error: " + e)
+        })
+    }
+    bar2.stop()
+    return word_map;
+}
+
+// linguee
+// async function scrapeLinguee(words) {
+//     let count = 1;
+//     bar2.start(words.length, count)
+//     let noArticle = false, curr_url, feminine, masculine;
+//     for (let word of words) {
+
+//         if (!wordCheck(word, linguee)) {
+//             curr_url = linguee + word;
+//             noArticle = true;
+//         } else {
+//             curr_url = wordCheck(word, linguee);
+//             noArticle = false;
+//         }
+
+//         req_prom.get({
+//             uri: curr_url,
+//             encoding: "binary"
+//         }, function (error, response, html) {
+
+//             // english translation
+//             let translation = $(".tag_trans > a", html).first().children().remove().end().text().trim()
+
+//             let noun = $("span > .tag_wordtype", html).text().toLowerCase().indexOf("sustantivo") !== -1
+
+//             let verb = $("span > .tag_wordtype", html).text().toLowerCase().indexOf("verbo") !== -1
+//             if (verb) {
+//                 translation = "to " + translation;
+//             }
+
+//             if (noArticle && noun) {
+
+//                 feminine = $("._2MYNwPb3", html).first().text().toLowerCase().indexOf("feminine") !== -1
+//                 masculine = $("._2MYNwPb3", html).first().text().toLowerCase().indexOf("masculine") !== -1
+
+//                 if (feminine) {
+//                     word = "la " + word;
+//                 } else if (masculine) {
+//                     word = "el " + word;
+//                 }
+//             }
+//             // example sentence
+//             let example = $("span.tag_e > span.tag_s", html).first().text()
+
+//             let obj = {
+//                 word,
+//                 translation,
+//                 example
+//             }
+
+//             word_map.set(word, obj)
+//             results[results.length] = obj
+//             count++;
+//             bar2.update(count)
+
+
+//         }).catch(function (e) {
+//             console.log("Error (linguee): " + e)
+//             process.exit(1)
+//         });
+//     }
+//     bar2.stop();
+//     return word_map
+// }
+
 
 // spanishdict
 async function scrapeSpanishDict(words) {
@@ -122,71 +253,14 @@ async function scrapeSpanishDict(words) {
             // example sentence
             let example = $("._1f2Xuesa", html).first().text()
 
-            let curr_obj = {
+            let obj = {
                 word,
                 translation,
                 example
             };
 
-            word_map.set(word, curr_obj)
-            results[results.length] = curr_obj
-            count++;
-            bar2.update(count)
-
-            // console.log(curr_obj)
-
-        }).catch(function (err) {
-            console.log("error: " + err)
-        })
-
-    }
-    bar2.stop();
-    return word_map;
-}
-
-// wordref
-async function scrapeWordRef(words) {
-    let count = 1;
-    bar2.start(words.length, count)
-    let noArticle = false, curr_url, feminine, masculine;
-
-    for (let word of words) {
-        if (!wordCheck(word, spandict)) {
-            curr_url = wordref + word;
-            noArticle = true;
-        } else {
-            curr_url = wordCheck(word, wordref);
-            noArticle = false;
-        }
-
-        await req_prom(curr_url).then(function (html) {
-            feminine = false;
-            // english translation
-            let translation = $(".ToWrd", html)[1].text()
-            let noun = $(".tooltip", html).first().text().toLowerCase().indexOf("n") !== -1
-
-            if (noArticle && noun) {
-                
-                feminine = $(".POS2", html).first().text().toLowerCase().indexOf("feminine") !== -1
-                masculine = $("._2MYNwPb3", html).first().text().toLowerCase().indexOf("masculine") !== -1
-
-                if (feminine) {
-                    word = "la " + word;
-                } else if (masculine) {
-                    word = "el " + word;
-                }
-            }
-            // example sentence
-            let example = $("._1f2Xuesa", html).first().text()
-
-            let curr_obj = {
-                word,
-                translation,
-                example
-            };
-
-            word_map.set(word, curr_obj)
-            results[results.length] = curr_obj
+            word_map.set(word, obj)
+            results[results.length] = obj
             count++;
             bar2.update(count)
 
@@ -195,9 +269,10 @@ async function scrapeWordRef(words) {
         })
 
     }
-    bar2.stop();
+    bar2.close()
     return word_map;
 }
+
 
 // check for spanish article -> fix url
 function wordCheck(word, url) {
