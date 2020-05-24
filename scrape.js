@@ -1,7 +1,10 @@
 const req_prom = require("request-promise");
 const $ = require("cheerio");
-const url = "https://www.spanishdict.com/translate/";
-// // "https://www.linguee.es/espanol-ingles/search?source=auto&query=";
+const spandict = "https://www.spanishdict.com/translate/";
+const linguee = "https://www.linguee.es/espanol-ingles/search?source=auto&query=";
+const wordref = "https://www.wordreference.com/es/en/translation.asp?spen=";
+const collinsdict = "https://www.collinsdictionary.com/us/dictionary/spanish-english/"
+
 const cliProgress = require("cli-progress")
 const bar2 = new cliProgress.SingleBar({}, cliProgress.Presets.shades_classic)
 const readline = require("readline").createInterface({
@@ -29,7 +32,7 @@ async function userInput() {
                     userpref.idx = idx;
                     readline.question("2. Enter range (ex: A2:A) - ", function (range) {
                         userpref.range = String(range);
-                        readline.question("3. Enter source (spandict, linguee, wordref, collinsdict) - ", function (source) {
+                        readline.question("3. Enter source (spandict, linguee, collinsdict) - ", function (source) {
                             userpref.source = source;
                             console.log("")
                             console.log('\x1b[36m%s\x1b[0m', "current settings: ")
@@ -84,17 +87,18 @@ function uploadToSheet(map) {
     return spread.pushToSheet(map)
 }
 
+// spanishdict
 async function scrapeSpanishDict(words) {
     let count = 1;
     bar2.start(words.length, count)
     let noArticle = false, curr_url, feminine, masculine;
 
     for (let word of words) {
-        if (!wordCheck(word)) {
-            curr_url = url + word;
+        if (!wordCheck(word, spandict)) {
+            curr_url = spandict + word;
             noArticle = true;
         } else {
-            curr_url = wordCheck(word);
+            curr_url = wordCheck(word, spandict);
             noArticle = false;
         }
 
@@ -140,8 +144,63 @@ async function scrapeSpanishDict(words) {
     return word_map;
 }
 
+// wordref
+async function scrapeWordRef(words) {
+    let count = 1;
+    bar2.start(words.length, count)
+    let noArticle = false, curr_url, feminine, masculine;
+
+    for (let word of words) {
+        if (!wordCheck(word, spandict)) {
+            curr_url = wordref + word;
+            noArticle = true;
+        } else {
+            curr_url = wordCheck(word, wordref);
+            noArticle = false;
+        }
+
+        await req_prom(curr_url).then(function (html) {
+            feminine = false;
+            // english translation
+            let translation = $(".ToWrd", html)[1].text()
+            let noun = $(".tooltip", html).first().text().toLowerCase().indexOf("n") !== -1
+
+            if (noArticle && noun) {
+                
+                feminine = $(".POS2", html).first().text().toLowerCase().indexOf("feminine") !== -1
+                masculine = $("._2MYNwPb3", html).first().text().toLowerCase().indexOf("masculine") !== -1
+
+                if (feminine) {
+                    word = "la " + word;
+                } else if (masculine) {
+                    word = "el " + word;
+                }
+            }
+            // example sentence
+            let example = $("._1f2Xuesa", html).first().text()
+
+            let curr_obj = {
+                word,
+                translation,
+                example
+            };
+
+            word_map.set(word, curr_obj)
+            results[results.length] = curr_obj
+            count++;
+            bar2.update(count)
+
+        }).catch(function (err) {
+            console.log("error: " + err)
+        })
+
+    }
+    bar2.stop();
+    return word_map;
+}
+
 // check for spanish article -> fix url
-function wordCheck(word) {
+function wordCheck(word, url) {
     word = word.replace(/\s/g, "");
     let short_article = word.slice(0, 2).toLowerCase();
     let long_article = word.slice(0, 3).toLowerCase();
