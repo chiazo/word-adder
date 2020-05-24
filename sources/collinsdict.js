@@ -1,1 +1,0 @@
-const url = "https://www.collinsdictionary.com/us/dictionary/spanish-english/"
